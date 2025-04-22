@@ -1,0 +1,236 @@
+### Environment Variables
+@baseUrl = http://localhost:3000/api/v1
+@accessToken = your_access_token_here
+@refreshToken = your_refresh_token_here
+@userId = user_id_here
+
+### ===============================================
+### AUTHENTICATION ENDPOINTS
+### ===============================================
+
+### Register New User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123",
+  "role": "user"
+}
+### Register Moderator User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Moderator User",
+  "email": "moderator@example.com",
+  "password": "moderatorpassword123",
+  "role": "moderator"
+}
+### Register Admin User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "adminpassword123",
+  "role": "admin"
+}
+
+### Login User
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Set tokens from login response
+# @accessToken = {{login.response.body.accesstoken}}
+# @refreshToken = {{login.response.body.refreshToken}}
+# @userId = {{login.response.body.user.id}}
+
+### Login with Non-existent User
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "password123"
+}
+
+### Login with Wrong Password
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "wrongpassword"
+}
+
+### Refresh Token
+POST {{baseUrl}}/auth/refresh-token
+Authorization: Bearer {{refreshToken}}
+
+### Public Route (No Auth Required)
+GET {{baseUrl}}/auth/public
+
+### Protected Route (Auth Required)
+GET {{baseUrl}}/auth/protected
+Authorization: Bearer {{accessToken}}
+
+### Moderator Route (Moderator Role Required)
+GET {{baseUrl}}/auth/moderator
+Authorization: Bearer {{accessToken}}
+
+### Admin Route (Admin Role Required)
+GET {{baseUrl}}/auth/admin
+Authorization: Bearer {{accessToken}}
+
+### ===============================================
+### USER MANAGEMENT ENDPOINTS
+### ===============================================
+
+### Get All Users
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+### Update Own Profile
+PATCH {{baseUrl}}/users/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "email": "updated_email@example.com"
+}
+
+### Update User Role (Admin Only)
+PATCH {{baseUrl}}/users/{{userId}}/role
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "role": "moderator"
+}
+
+### Reset Password
+PATCH {{baseUrl}}/users/reset-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "password": "newpassword123"
+}
+
+### ===============================================
+### ERROR SCENARIOS
+### ===============================================
+
+### Accessing Protected Route Without Token
+GET {{baseUrl}}/auth/protected
+
+### Accessing Admin Route With Non-Admin Token
+GET {{baseUrl}}/auth/admin
+Authorization: Bearer {{accessToken}}
+
+### Updating Role Without Admin Privileges
+PATCH {{baseUrl}}/users/{{userId}}/role
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "role": "admin"
+}
+
+### Rate Limit Test (Run Multiple Times)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Invalid Role in Registration
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Invalid Role User",
+  "email": "invalid_role@example.com",
+  "password": "password123",
+  "role": "superuser"
+}
+
+### ===============================================
+### COMPLETE AUTHENTICATION FLOW TEST
+### ===============================================
+
+### 1. Register a new user
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Flow Test User",
+  "email": "flowtest@example.com",
+  "password": "testpassword",
+  "role": "user"
+}
+
+### 2. Login to get tokens
+# @name flowLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "flowtest@example.com",
+  "password": "testpassword"
+}
+
+### 3. Access protected resource with access token
+# Use: @accessToken = {{flowLogin.response.body.accesstoken}}
+GET {{baseUrl}}/auth/protected
+Authorization: Bearer {{accessToken}}
+
+### 4. Refresh access token using refresh token
+# Use: @refreshToken = {{flowLogin.response.body.refreshToken}}
+# @name tokenRefresh
+POST {{baseUrl}}/auth/refresh-token
+Authorization: Bearer {{refreshToken}}
+
+### 5. Access protected resource with new access token
+# Use: @accessToken = {{tokenRefresh.response.body.accesstoken}}
+GET {{baseUrl}}/auth/protected
+Authorization: Bearer {{accessToken}}
+
+### 6. Update user profile
+PATCH {{baseUrl}}/users/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Flow Test User"
+}
+
+### 7. Reset password
+PATCH {{baseUrl}}/users/reset-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "password": "newflowpassword"
+}
+
+### 8. Login with new password
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "flowtest@example.com",
+  "password": "newflowpassword"
+}
