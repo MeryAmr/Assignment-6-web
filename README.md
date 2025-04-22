@@ -47,7 +47,7 @@ This project is a RESTful API built with Node.js, Express, and MongoDB that prov
 
 ### Setting Up dotenv
 
-The project uses the `dotenv` package to manage environment variables. Here's how to set it up properly:
+The project uses the `dotenv` package to manage environment variables, to install it:
 
 1. Install dotenv (already included in dependencies):
 
@@ -70,23 +70,12 @@ The project uses the `dotenv` package to manage environment variables. Here's ho
 
    ```bash
    # Run these commands in your terminal to generate random strings
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+   node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
    ```
 
    Copy the output from these commands to use as your JWT_SECRET and REFRESH_TOKEN.
 
-4. Ensure the `.env` file is included in your `.gitignore` to keep your secrets safe:
-
-   ```
-   # .gitignore
-   .env
-   ```
-
-5. In your application code, dotenv is typically configured at the entry point:
-   ```javascript
-   require("dotenv").config();
-   ```
 
 ### Token Expiration
 
